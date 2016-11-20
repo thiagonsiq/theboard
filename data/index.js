@@ -4,6 +4,6 @@
 
     data.getNoteCategories = function(next){
         next(null, seedData.initialNotes)
-    }
+    };
 
 })(module.exports);
