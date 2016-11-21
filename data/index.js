@@ -4,7 +4,59 @@
     var database = require("./database");
 
     data.getNoteCategories = function(next){
-        next(null, seedData.initialNotes)
+        database.getDb(function(err, db){
+            if(err){
+                next(err, null);
+            } else {
+                db.notes.find().sort({name: 1}).toArray(function(err, results){
+                    if(err){
+                        next(err, null);
+                    } else {
+                        next(null, results);
+                    }
+                });
+            }
+        })
+    };
+
+    data.getNotes = function(categoryName, next){
+        database.getDb(function(err, db){
+            if(err){
+                next(err);
+            } else {
+                db.notes.findOne({name: categoryName}, next);
+            }
+        });
+    };
+
+    data.createNewCategory  =  function(categoryName, next){
+        database.getDb(function(err, db){
+            if(err){
+                next(err);
+            } else {
+                db.notes.find({name: categoryName}).count(function(err, count){
+                    if(err){
+                        next(err);
+                    } else {
+                        if(count != 0){
+                            next("Category already exists");
+                        } else {
+                            var cat = {
+                                name: categoryName,
+                                notes: []
+                            };
+                            db.notes.insert(cat, function(err){
+                                if(err){
+                                    next(err);
+                                } else {
+                                    next(null);
+                                }
+                            });
+                        }
+                    }
+                })
+            }
+        });
     };
 
     function seedDatabase(){
